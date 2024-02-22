@@ -2,6 +2,7 @@ program main
   !use DynamicQueueModule
   use json_module
   use linked_list_uso
+  use cola_clientes
   use lista_ventanillas
   implicit none
   integer :: choice
@@ -12,8 +13,9 @@ program main
     integer :: imgPCliente, imgGCliente
     integer :: i, size        ! Se declaran variables enteras
     logical :: found
-  type(linked_list) :: lista_clientes
+  type(cola) :: clientesEnCola
   type(ListaVentanillas) :: lista_vent
+  call inicializar_cola(clientesEnCola)
   do
       call printMenu()
       read(*,*) choice
@@ -96,7 +98,12 @@ contains
                 call jsonc%get(attributePointer, imgPCliente)  ! Se obtiene el valor y se asigna a la variable 'nombre'
                 print *, imgPCliente           ! Se imprime el nombre sin espacios en blanco adicionales
             end if
+            
+            call agregar_cliente(clientesEnCola, i, nombreCliente, imgGCliente, imgPCliente)
+
         end do
+
+        
 
     ! Liberar recursos
     call json%destroy()
@@ -138,3 +145,5 @@ end subroutine
 
 
 end program main
+
+
