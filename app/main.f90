@@ -5,17 +5,21 @@ program main
   use cola_clientes
   use lista_ventanillas
   implicit none
+  character(50), dimension(5) :: nombres = ["Pedro", "Maria", "Carlo", "Laura", "Pedro"]
+    character(50), dimension(5) :: apellidos = ["Gomez", "Lopez", "Avila", "Perez", "Veliz"]
   integer :: choice
   type(json_file) :: json   ! Se declara una variable del tipo json_file
     type(json_value), pointer :: listPointer, personPointer, attributePointer  ! Se declaran punteros a variables del tipo json_value
     type(json_core) :: jsonc  ! Se declara una variable del tipo json_core para acceder a las funciones básicas de JSON
-    character(:), allocatable :: nombreCliente  ! Se declara una cadena de caracteres que se asignará dinámicamente
+    character(:), allocatable :: nombreCliente  
     integer :: imgPCliente, imgGCliente
-    integer :: i, size        ! Se declaran variables enteras
+    integer :: i, size, contadorDePasos
+          ! Se declaran variables enteras
     logical :: found
   type(cola) :: clientesEnCola
   type(ListaVentanillas) :: lista_vent
   call inicializar_cola(clientesEnCola)
+  contadorDePasos = 1 
   do
       call printMenu()
       read(*,*) choice
@@ -121,8 +125,49 @@ contains
   end subroutine
 
   subroutine option2()
-      print *, "Has seleccionado la Opción 2."
-      ! Aquí puedes agregar el código correspondiente a la opción 2
+    integer :: iNuevo, num_clientes, iterador
+    
+    real :: random_value
+     
+      
+      print *, "--------------------------------------------"
+      print *, "              PASO ", contadorDePasos
+      print *, "--------------------------------------------"
+      call pop_cliente(clientesEnCola, i, nombreCliente, imgGCliente, imgPCliente)
+      call pasarClienteVentanilla(lista_vent,nombreCliente, imgPCliente, imgGCliente, contadorDePasos)
+      
+      print *, "--------------------------------------------"
+      print *, "--------------------------------------------"
+
+     
+    ! Inicializa el generador de números aleatorios
+    call random_seed()
+    call random_number(random_value)
+
+    ! Generar aleatoriamente la cantidad de clientes
+    num_clientes = floor(random_value*4)
+    
+    do iterador = 1, num_clientes
+        call random_number(random_value)
+
+      ! Genera aleatoriamente el nombre del cliente
+      nombreCliente = trim(nombres(mod(floor(random_value*5), 5) + 1))
+      nombreCliente =  trim(nombreCliente //" "// apellidos(mod(floor(random_value*5), 5) + 1))
+      
+
+      ! Genera aleatoriamente la cantidad de imágenes por cliente (entre 0 y 4)
+      call random_number(random_value)
+
+      imgGCliente = floor(random_value * 5)
+      call random_number(random_value)
+
+      imgPCliente = floor(random_value * 5)
+      call agregar_cliente(clientesEnCola, iterador, nombreCliente, imgGCliente, imgPCliente)
+    end do
+
+      contadorDePasos = contadorDePasos + 1
+      
+
   end subroutine
 
   subroutine option3()
