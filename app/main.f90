@@ -4,6 +4,7 @@ program main
   use linked_list_uso
   use cola_clientes
   use lista_ventanillas
+  use ColaDeImpresion_
   implicit none
   character(50), dimension(5) :: nombres = ["Pedro", "Maria", "Carlo", "Laura", "Pedro"]
     character(50), dimension(5) :: apellidos = ["Gomez", "Lopez", "Avila", "Perez", "Veliz"]
@@ -12,14 +13,16 @@ program main
     type(json_value), pointer :: listPointer, personPointer, attributePointer  ! Se declaran punteros a variables del tipo json_value
     type(json_core) :: jsonc  ! Se declara una variable del tipo json_core para acceder a las funciones básicas de JSON
     character(:), allocatable :: nombreCliente  
-    integer :: imgPCliente, imgGCliente
+    integer :: imgPCliente, imgGCliente, contadorParaEliminarEnCola
     integer :: i, size, contadorDePasos
           ! Se declaran variables enteras
     logical :: found
   type(cola) :: clientesEnCola
   type(ListaVentanillas) :: lista_vent
+  
   call inicializar_cola(clientesEnCola)
   contadorDePasos = 1 
+  contadorParaEliminarEnCola = 0
   do
       call printMenu()
       read(*,*) choice
@@ -70,7 +73,7 @@ contains
       read(*, '(A)') choice2
       select case (choice2)
       case ("a")
-        print *, "hola a"
+       
        ! call json%initialize()
     !call json%load(filename="C:\Users\Javier Avila\Desktop\fortranjs\fortranjs\datos.json")
         call json%initialize()    ! Se inicializa el módulo JSON
@@ -81,9 +84,15 @@ contains
     
         call json%get_core(jsonc)               ! Se obtiene el núcleo JSON para acceder a sus funciones básicas
         call json%get('', listPointer, found)
+        print *, "----------------------------------------------"
+        print *, "              Clientes Cargados"
+        print *, "----------------------------------------------" 
     
         do i = 1, size  
-            print *, "id", i                        ! Se inicia un bucle sobre el número de elementos en el JSON
+          print *, "----------------------------------------------"
+          print *, "                 Cliente", i
+          print *, "----------------------------------------------"
+                                    ! Se inicia un bucle sobre el número de elementos en el JSON
             call jsonc%get_child(listPointer, i, personPointer, found = found)  ! Se obtiene el i-ésimo hijo de listPointer
             call jsonc%get_child(personPointer, 'nombre', attributePointer, found = found)  ! Se obtiene el valor asociado con la clave 'nombre' del hijo actual
             if (found) then                      ! Si se encuentra el valor asociado con la clave 'nombre'
@@ -105,8 +114,12 @@ contains
             
             call agregar_cliente(clientesEnCola, i, nombreCliente, imgGCliente, imgPCliente)
 
-        end do
+           
 
+        end do
+        print *, "----------------------------------------------"
+        print *, "          Termino Cargar Clientes"
+        print *, "----------------------------------------------"
         
 
     ! Liberar recursos
@@ -117,7 +130,12 @@ contains
           print *, "Ingrese la cantidad de ventanillas que desea:" 
           read(*,*) cantidad
           call agregar_ventanilla(lista_vent, cantidad)
+          print *, "----------------------------------------------"
+          print *, "              Ventanillas Creadas"
+          print *, "----------------------------------------------"
           call recorrer_lista_ventanillas(lista_vent)
+          print *, "----------------------------------------------"
+          print *, "----------------------------------------------"
 
       case default
           print *, "Opción no válida. Introduce 'a' o 'b'."
@@ -125,22 +143,12 @@ contains
   end subroutine
 
   subroutine option2()
-    integer :: iNuevo, num_clientes, iterador
-    
+    integer :: iNuevo, num_clientes, iterador, VentanillaDesencolada
+    logical :: colaVaciaVar
+    character(len=100) :: nombreClienteDesencolado
     real :: random_value
-     
-      
-      print *, "--------------------------------------------"
-      print *, "              PASO ", contadorDePasos
-      print *, "--------------------------------------------"
-      call pop_cliente(clientesEnCola, i, nombreCliente, imgGCliente, imgPCliente)
-      call pasarClienteVentanilla(lista_vent,nombreCliente, imgPCliente, imgGCliente, contadorDePasos)
-      
-      print *, "--------------------------------------------"
-      print *, "--------------------------------------------"
+    
 
-     
-    ! Inicializa el generador de números aleatorios
     call random_seed()
     call random_number(random_value)
 
@@ -165,7 +173,35 @@ contains
       call agregar_cliente(clientesEnCola, iterador, nombreCliente, imgGCliente, imgPCliente)
     end do
 
+    call ColaVacia(ColaDeImpresionImgPequenas, colaVaciaVar)
+    if (colaVaciaVar) then
+      print *, "Se desencolo P---------------------------"
+      call DesencolarImpresion(ColaDeImpresionImgPequenas, nombreClienteDesencolado)
+
+    end if
+    call ColaVacia(ColaDeImpresionImgGrandes, colaVaciaVar)
+    if (colaVaciaVar .and. contadorParaEliminarEnCola >= 2) then
+      print *, "Se desencolo G----------------------------"
+      call DesencolarImpresion(ColaDeImpresionImgGrandes, nombreClienteDesencolado)
+      contadorParaEliminarEnCola = 0
+    else if (colaVaciaVar .and. contadorParaEliminarEnCola < 2) then
+      contadorParaEliminarEnCola = contadorParaEliminarEnCola + 1
+      
+    end if
+      
+      print *, "--------------------------------------------"
+      print *, "              PASO ", contadorDePasos
+      print *, "--------------------------------------------"
+      call pop_cliente(clientesEnCola, i, nombreCliente, imgGCliente, imgPCliente)
+      call pasarClienteVentanilla(lista_vent,nombreCliente, imgPCliente, imgGCliente, contadorDePasos)
+      
+      print *, "--------------------------------------------"
+      print *, "--------------------------------------------"
+
+      
+    !subroutine Desencolar(c, nombreCliente, ventanilla)
       contadorDePasos = contadorDePasos + 1
+      
       
 
   end subroutine
@@ -190,5 +226,4 @@ end subroutine
 
 
 end program main
-
 
