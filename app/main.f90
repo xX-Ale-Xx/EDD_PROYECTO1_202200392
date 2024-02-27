@@ -5,6 +5,9 @@ program main
   use cola_clientes
   use lista_ventanillas
   use ColaDeImpresion_
+  use ListaCircular
+  use pilaImg
+
   implicit none
   character(50), dimension(5) :: nombres = ["Pedro", "Maria", "Carlo", "Laura", "Pedro"]
     character(50), dimension(5) :: apellidos = ["Gomez", "Lopez", "Avila", "Perez", "Veliz"]
@@ -176,13 +179,18 @@ contains
     call ColaVacia(ColaDeImpresionImgPequenas, colaVaciaVar)
     if (colaVaciaVar) then
       print *, "Se desencolo P---------------------------"
-      call DesencolarImpresion(ColaDeImpresionImgPequenas, nombreClienteDesencolado)
+      call DesencolarImpresion(ColaDeImpresionImgPequenas, nombreClienteDesencolado, VentanillaDesencolada)
+      call AgregarImagenAlCliente(ListaCircularDeEspera, nombreClienteDesencolado, &
+       "ImgP", VentanillaDesencolada, contadorDePasos)
+
 
     end if
     call ColaVacia(ColaDeImpresionImgGrandes, colaVaciaVar)
-    if (colaVaciaVar .and. contadorParaEliminarEnCola >= 2) then
+    if (colaVaciaVar .and. contadorParaEliminarEnCola >= 1) then
       print *, "Se desencolo G----------------------------"
-      call DesencolarImpresion(ColaDeImpresionImgGrandes, nombreClienteDesencolado)
+      call DesencolarImpresion(ColaDeImpresionImgGrandes, nombreClienteDesencolado, VentanillaDesencolada)
+      call AgregarImagenAlCliente(ListaCircularDeEspera, nombreClienteDesencolado, &
+       "ImgG", VentanillaDesencolada, contadorDePasos)
       contadorParaEliminarEnCola = 0
     else if (colaVaciaVar .and. contadorParaEliminarEnCola < 2) then
       contadorParaEliminarEnCola = contadorParaEliminarEnCola + 1
@@ -193,7 +201,7 @@ contains
       print *, "              PASO ", contadorDePasos
       print *, "--------------------------------------------"
       call pop_cliente(clientesEnCola, i, nombreCliente, imgGCliente, imgPCliente)
-      call pasarClienteVentanilla(lista_vent,nombreCliente, imgPCliente, imgGCliente, contadorDePasos)
+      call pasarClienteVentanilla(lista_vent,nombreCliente, imgPCliente, imgGCliente)
       
       print *, "--------------------------------------------"
       print *, "--------------------------------------------"
@@ -208,7 +216,7 @@ contains
 
   subroutine option3()
       print *, "Has seleccionado la Opción 3."
-      ! Aquí puedes agregar el código correspondiente a la opción 3
+      call graficarPilaDeCadaVentanilla(lista_vent)
   end subroutine
 
   subroutine option4()

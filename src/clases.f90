@@ -31,6 +31,40 @@ contains
     p%tope => nuevo_nodo
   end subroutine agregar
 
+  subroutine graficar(this, filename)
+    class(Pilas), intent(in) :: this
+    character(len=*) :: filename
+
+    integer :: unit
+    type(Nodo), pointer :: current
+    integer :: count
+
+
+    ! Abrir el archivo DOT
+    open(unit, file=filename, status='replace')
+    write(unit, *) 'digraph Pila {'
+    write(unit, *) '    node [shape=box, style=filled, color=blue, fillcolor=pink];' ! Aplicar atributos a todos los nodos
+    ! Escribir nodos y conexiones
+    current => this%tope
+    count = 0
+    do while (associated(current))
+        count = count + 1
+        write(unit, *) '    "Node', count, '" [label="', current%palabra, '"];'
+        if (associated(current%siguiente)) then
+            write(unit, *) '    "Node', count, '" -> "Node', count+1, '";'
+        end if
+        current => current%siguiente
+    end do 
+
+    ! Cerrar el archivo DOT
+    write(unit, *) '}'
+    close(unit)
+
+    ! Generar el archivo PNG utilizando Graphviz
+    call system('dot -Tpng ' // trim(filename) // ' -o ' // trim(adjustl(filename)) // '.png')
+
+    print *, 'Graphviz file generated: ', trim(adjustl(filename)) // '.png'
+end subroutine graficar
 
   subroutine eliminar(p, nomClientePila)
     type(Pilas), intent(inout) :: p
@@ -65,6 +99,7 @@ module lista_ventanillas
   use pilaImg
   
   use ListaCircular
+
   implicit none
 
   type, public :: NodoVentanilla
@@ -89,10 +124,10 @@ module lista_ventanillas
   contains
 
   
-  subroutine pasarClienteVentanilla(lista, nombreClienteAtender, imgPAtender, imgGAtender, pasosActuales)
+  subroutine pasarClienteVentanilla(lista, nombreClienteAtender, imgPAtender, imgGAtender)
     class(ListaVentanillas), intent(inout) :: lista
     character(*), intent(in) :: nombreClienteAtender
-    integer, intent(in) :: imgPAtender, imgGAtender, pasosActuales
+    integer, intent(in) :: imgPAtender, imgGAtender
     type(NodoVentanilla), pointer :: actual
     integer :: sumarImgEnVent
 
@@ -175,17 +210,17 @@ end subroutine pasarClienteVentanilla
     do con = 1, imgSumar 
       call eliminar(actual%pilaImagenes,palabraEliminada)
     end do
-    write(*,*)"Se vacio la pila con las img de:  "// palabraEliminada
+    write(*,*)"Se vacio la pila con las img de:  "// trim(palabraEliminada)
     
-    call AgregarNodoCircular(ListaCircularDeEspera,palabraEliminada, actual%imgGPasarCola, actual%imgPPasarCola , actual%id)
+    call AgregarNodoCircular(ListaCircularDeEspera ,trim(palabraEliminada), actual%imgGPasarCola, actual%imgPPasarCola , actual%id)
     
 
     do con = 1, actual%imgGPasarCola
-      call Encolar(ColaDeImpresionImgGrandes, actual%nomClienteVentanilla)
+      call Encolar(ColaDeImpresionImgGrandes, actual%nomClienteVentanilla, actual%id)
     end do
 
     do con = 1, actual%imgPPasarCola
-      call Encolar(ColaDeImpresionImgPequenas, actual%nomClienteVentanilla)
+      call Encolar(ColaDeImpresionImgPequenas, actual%nomClienteVentanilla, actual%id)
     end do
     print*, "COLA IMPRESORA GRANDE______________________________________"
     call ImprimirCola(ColaDeImpresionImgGrandes)
@@ -210,6 +245,24 @@ end subroutine atenderClientes
     end if
 end subroutine recorrer_lista_ventanillas
 
+subroutine graficarPilaDeCadaVentanilla(lista)
+type(ListaVentanillas), intent(in) :: lista
+    type(NodoVentanilla), pointer :: actual
+
+    character (50):: nombreArchivo
+    if (associated(lista%inicio)) then
+        actual => lista%inicio
+        
+        do while (associated(actual))
+            write (nombreArchivo, '(A,I0)') "Pila_", actual%id
+            call graficar(actual%pilaImagenes, nombreArchivo)
+            
+            actual => actual%siguiente
+        end do
+    else
+        print *, "La lista está vacía."
+    end if
+end subroutine graficarPilaDeCadaVentanilla
 end module lista_ventanillas
 
 module cola_clientes
@@ -273,7 +326,7 @@ contains
     type(nodo), pointer :: nodo_aux
 
     if (.not. associated(c%frente)) then
-      print *, "La cola está vacía."
+    
       return
     end if
 
@@ -298,7 +351,7 @@ module ColaDeImpresion_
 
   type, public :: Nodo
       character(50) :: nombreClienteImprimiendo
-      
+      integer :: idVentanillaAtendioImprimiendo
       type(Nodo), pointer :: siguiente
   end type Nodo
 
@@ -310,14 +363,16 @@ module ColaDeImpresion_
   contains
 
 
-  subroutine Encolar(c, nombreCliente)
+  subroutine Encolar(c, nombreCliente, idVentanillaAtendioImprimiendo)
       type(ColaImpresion), intent(inout) :: c
-      character(50), intent(in) :: nombreCliente
+      character(len = *), intent(in) :: nombreCliente
+      integer, intent(in) :: idVentanillaAtendioImprimiendo
       
 
       type(Nodo), pointer :: nuevoNodo
       allocate(nuevoNodo)
       nuevoNodo%nombreClienteImprimiendo = nombreCliente
+      nuevoNodo%idVentanillaAtendioImprimiendo = idVentanillaAtendioImprimiendo
       
       nuevoNodo%siguiente => null()
 
@@ -330,9 +385,10 @@ module ColaDeImpresion_
       end if
   end subroutine Encolar
 
-  subroutine DesencolarImpresion(c, nombreCliente)
+  subroutine DesencolarImpresion(c, nombreCliente, idVentanillaAtendioImprimiendo)
       type(ColaImpresion), intent(inout) :: c
-      character(50), intent(out) :: nombreCliente
+      character(len = *), intent(out) :: nombreCliente
+      integer, intent(out) :: idVentanillaAtendioImprimiendo
       
 
       type(Nodo), pointer :: nodoDesencolado
@@ -346,6 +402,7 @@ module ColaDeImpresion_
       c%frente => nodoDesencolado%siguiente
 
       nombreCliente = nodoDesencolado%nombreClienteImprimiendo
+      idVentanillaAtendioImprimiendo = nodoDesencolado%idVentanillaAtendioImprimiendo
       
 
       deallocate(nodoDesencolado)
@@ -357,7 +414,7 @@ module ColaDeImpresion_
     type(Nodo), pointer :: nodoActual
 
     if (.not. associated(c%frente)) then
-        print *, 'La cola está vacía.'
+        
         return
     end if
 
@@ -395,17 +452,18 @@ implicit none
       type(Nodo), pointer :: siguiente => null()
   end type Nodo
 
-  type, public :: ListaClientes
+  type, public :: ListaClientesAtendidos
       type(Nodo), pointer :: cabeza => null()
-  end type ListaClientes
+  end type ListaClientesAtendidos
 
 contains
 
   subroutine agregarCliente(lista, nombre, cantImpresas, ventanilla, cantPasos)
       ! Agrega un nuevo cliente a la lista
-      type(ListaClientes), intent(inout) :: lista
-      character(50), intent(in) :: nombre
+      type(ListaClientesAtendidos), intent(inout) :: lista
+      character(len = *), intent(in) :: nombre
       integer, intent(in) :: cantImpresas, ventanilla, cantPasos
+      
 
       type(Nodo), pointer :: nuevoNodo
       allocate(nuevoNodo)
@@ -416,11 +474,12 @@ contains
 
       nuevoNodo%siguiente => lista%cabeza
       lista%cabeza => nuevoNodo
+
   end subroutine agregarCliente
 
-  subroutine imprimirLista(lista)
+  subroutine imprimirListaClientesAtendidos(lista)
       ! Imprime la lista de clientes
-      type(ListaClientes), intent(in) :: lista
+      type(ListaClientesAtendidos), intent(in) :: lista
       type(Nodo), pointer :: actual
 
       actual => lista%cabeza
@@ -432,7 +491,7 @@ contains
           print *, "----------------------------------------"
           actual => actual%siguiente
       end do
-  end subroutine imprimirLista
+  end subroutine imprimirListaClientesAtendidos
 
 end module ListaClientesMod
 
@@ -466,7 +525,7 @@ contains
   ! Subrutina para agregar un nodo a la lista
   subroutine agregarNodoImpresion(L, tipo, id)
     type(listaImgImp), intent(inout) :: L
-    character(10), intent(in) :: tipo
+    character(len = *), intent(in) :: tipo
     integer, intent(in) :: id
 
     type(nodoImp), pointer :: nuevoNodo
@@ -507,12 +566,13 @@ end module listaImagenesImpresas
 
 module ListaCircular
   use listaImagenesImpresas
+  use ListaClientesMod
   implicit none
   
   type, public :: NodoCircular
     character(50) :: nombreClienteEspera
-    integer :: cantImgGEspera
-    integer :: cantImgPEspera, idVentanillaAtendio
+    integer :: cantImgEspera, contadorDeImsgenesRecibidas
+    integer ::  idVentanillaAtendio
     type(listaImgImp) :: lista_imagenes_impresas
     type(NodoCircular), pointer :: siguiente
     type(NodoCircular), pointer :: anterior
@@ -523,21 +583,23 @@ module ListaCircular
     type(NodoCircular), pointer :: ultimo => null()
   end type ListaCircularType
 
+  type(ListaClientesAtendidos) :: ListaDeClientesQueYaFueronAtendidos
+
   contains
 
   subroutine AgregarNodoCircular(lista, nombreCliente, cantImgG, cantImgP, idVentanillaAtendio)
     type(ListaCircularType), intent(inout) :: lista
     type(NodoCircular), pointer :: nuevoNodo
-    character(50), intent(in) :: nombreCliente
+    character(len = *), intent(in) :: nombreCliente
     integer, intent(in) :: cantImgG, cantImgP, idVentanillaAtendio
-    
+  
 
     allocate(nuevoNodo)
     nuevoNodo%nombreClienteEspera = nombreCliente
-    nuevoNodo%cantImgGEspera = cantImgG
-    nuevoNodo%cantImgPEspera = cantImgP
+    nuevoNodo%cantImgEspera = cantImgP + cantImgG
     nuevoNodo%idVentanillaAtendio = idVentanillaAtendio
-
+    nuevoNodo%contadorDeImsgenesRecibidas = 0
+    
     if (associated(lista%cabeza)) then
       nuevoNodo%siguiente => lista%cabeza
       nuevoNodo%anterior => lista%ultimo
@@ -552,37 +614,130 @@ module ListaCircular
     lista%ultimo => nuevoNodo
   end subroutine AgregarNodoCircular
 
-  subroutine ImprimirListaCircular(lista)
-    type(ListaCircularType), intent(in) :: lista
-    type(NodoCircular), pointer :: nodoActual
+  
 
+  subroutine AgregarImagenAlCliente(lista, nombreCliente, nuevaImagen, idVentanillaAtendioPasar, contadorDePasos)
+    type(ListaCircularType), intent(inout) :: lista
+    character(len = *), intent(in) :: nombreCliente
+    character(len = *), intent(in) :: nuevaImagen
+    integer, intent(in) :: idVentanillaAtendioPasar
+    type(NodoCircular), pointer :: nodoActual
+    logical :: clienteEncontrado
+    integer, intent(in) :: contadorDePasos
+  
+    clienteEncontrado = .false.
+   
     if (associated(lista%cabeza)) then
-      ! Forward traversal
-      write(*, '(A)') 'Forward traversal:'
       nodoActual => lista%cabeza
       do
-        write(*, '(A, I5, I5)') trim(nodoActual%nombreClienteEspera), &
-                                 nodoActual%cantImgGEspera, nodoActual%cantImgPEspera
-        write(*, '(A)') 'Imágenes Impresas:'
-        call imprimirLista(nodoActual%lista_imagenes_impresas)
-        if (nodoActual%nombreClienteEspera == lista%ultimo%nombreClienteEspera) exit
+        
+        if (trim(nodoActual%nombreClienteEspera) == trim(nombreCliente) & 
+        .and. nodoActual%idVentanillaAtendio == idVentanillaAtendioPasar) then    
+          ! Agregar la nueva imagen a la lista del cliente encontrado
+          if (nodoActual%contadorDeImsgenesRecibidas < nodoActual%cantImgEspera)  then 
+            
+            nodoActual%contadorDeImsgenesRecibidas = nodoActual%contadorDeImsgenesRecibidas +1
+            print *, nuevaImagen // "FUE ENTREGADA"
+            call agregarNodoImpresion(nodoActual%lista_imagenes_impresas, nuevaImagen &
+            , nodoActual%contadorDeImsgenesRecibidas)
+            
+            print *, "*************Imagen entregada*************"
+
+            if(nodoActual%contadorDeImsgenesRecibidas >= nodoActual%cantImgEspera) then
+
+              call EliminarNodoPorNombreYVentanilla(lista, nombreCliente, idVentanillaAtendioPasar, &
+               contadorDePasos , nodoActual%cantImgEspera)
+               write(*, '(A, I5, I5)') trim(nombreCliente) // " Salio"
+            end if
+          else
+            exit
+
+          end if
+
+          clienteEncontrado = .true.
+          exit
+        end if
+  
+        if (trim(nodoActual%nombreClienteEspera) == trim(lista%ultimo%nombreClienteEspera) &
+        .and. nodoActual%idVentanillaAtendio == lista%ultimo%idVentanillaAtendio ) exit
         nodoActual => nodoActual%siguiente
       end do
-
-      ! Backward traversal
-      write(*, '(A)') 'Backward traversal:'
-      nodoActual => lista%ultimo
-      do
-        write(*, '(A, I5, I5)') trim(nodoActual%nombreClienteEspera), &
-                                 nodoActual%cantImgGEspera, nodoActual%cantImgPEspera
-        write(*, '(A)') 'Imágenes Impresas:'
-        call imprimirLista(nodoActual%lista_imagenes_impresas)
-        if (nodoActual%nombreClienteEspera == lista%cabeza%nombreClienteEspera) exit
-        nodoActual => nodoActual%anterior
-      end do
-    else
-      write(*, '(A)') 'La lista está vacía.'
     end if
-  end subroutine ImprimirListaCircular
+  
+    if (.not. clienteEncontrado) then
+      write(*, '(A)') 'Cliente no encontrado en la lista.'
+    end if
+  end subroutine AgregarImagenAlCliente
+  
+
+  subroutine EliminarNodoPorNombreYVentanilla(lista, nombreCliente, numeroDeVentanilla, contadorDePasos, cantImgEspera)
+    type(ListaCircularType), intent(inout) :: lista
+    character(50), intent(in) :: nombreCliente
+    integer, intent(in) :: numeroDeVentanilla
+    integer, intent(in) :: contadorDePasos, cantImgEspera
+    type(NodoCircular), pointer :: nodoActual, nodoEliminar
+  
+    logical :: nodoEncontrado
+    nodoEncontrado = .false.
+
+    
+  
+    if (associated(lista%cabeza)) then
+      nodoActual => lista%cabeza
+      do
+        if (trim(nodoActual%nombreClienteEspera) == trim(nombreCliente) .and. &
+         nodoActual%idVentanillaAtendio == numeroDeVentanilla) then
+          ! Remove the node from the list
+          if (trim(nodoActual%nombreClienteEspera) == trim(nodoActual%siguiente%nombreClienteEspera) .and. &
+          nodoActual%idVentanillaAtendio == nodoActual%siguiente%idVentanillaAtendio) then
+            ! Only one node in the list
+            nullify(lista%cabeza)
+            nullify(lista%ultimo)
+          else
+            if (trim(nodoActual%nombreClienteEspera) == trim (lista%cabeza%nombreClienteEspera) .and. &
+             nodoActual%idVentanillaAtendio == lista%cabeza%idVentanillaAtendio) then
+              ! If the node to be removed is the head, update the head
+              lista%cabeza => nodoActual%siguiente
+            end if
+            if (trim(nodoActual%nombreClienteEspera) == trim(lista%ultimo%nombreClienteEspera) .and. &
+            nodoActual%idVentanillaAtendio == lista%ultimo%idVentanillaAtendio) then
+              ! If the node to be removed is the last, update the last
+              lista%ultimo => nodoActual%anterior
+            end if
+            ! Update the pointers of adjacent nodes
+            nodoActual%anterior%siguiente => nodoActual%siguiente
+            nodoActual%siguiente%anterior => nodoActual%anterior
+          end if
+  
+          ! Save the node to be deleted for printing later
+          nodoEliminar => nodoActual
+  
+          ! Deallocate the node
+          deallocate(nodoActual)
+  
+          nodoEncontrado = .true.
+          exit
+        end if
+  
+        if (trim(nodoActual%nombreClienteEspera) == trim(lista%ultimo%nombreClienteEspera) .and. &
+         nodoActual%idVentanillaAtendio == lista%ultimo%idVentanillaAtendio) exit
+        nodoActual => nodoActual%siguiente
+      end do
+    end if
+  
+    if (.not. nodoEncontrado) then
+      write(*, '(A)') 'Nodo no encontrado en la lista.'
+    else
+      write(*, '(A)') 'Nodo eliminado:'
+      write(*, '(A, I5, I5)') trim(nombreCliente)
+      write(*, '(A)') 'Imágenes Impresas:'
+      call imprimirLista(nodoEliminar%lista_imagenes_impresas)
+      call agregarCliente(ListaDeClientesQueYaFueronAtendidos, nombreCliente, &
+      cantImgEspera, numeroDeVentanilla, contadorDePasos)
+      call imprimirListaClientesAtendidos(ListaDeClientesQueYaFueronAtendidos)   
+      
+    end if
+  end subroutine EliminarNodoPorNombreYVentanilla
+  
 
 end module ListaCircular
