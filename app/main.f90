@@ -13,7 +13,7 @@ program main
     character(50), dimension(5) :: apellidos = ["Gomez", "Lopez", "Avila", "Perez", "Veliz"]
   integer :: choice
   type(json_file) :: json   ! Se declara una variable del tipo json_file
-    type(json_value), pointer :: listPointer, personPointer, attributePointer  ! Se declaran punteros a variables del tipo json_value
+    type(json_value), pointer :: listPointer, personPointer, attributePointer  
     type(json_core) :: jsonc  ! Se declara una variable del tipo json_core para acceder a las funciones básicas de JSON
     character(:), allocatable :: nombreCliente  
     integer :: imgPCliente, imgGCliente, contadorParaEliminarEnCola
@@ -71,16 +71,20 @@ contains
     integer :: cantidad 
     character(len=5) :: caracterId
       character(1) :: choice2
+      character(100)::nombreArchivoJs
       print *, "Has seleccionado la Opción 1."
       call printParametrosIniciales()
       read(*, '(A)') choice2
+      
       select case (choice2)
       case ("a")
        
        ! call json%initialize()
     !call json%load(filename="C:\Users\Javier Avila\Desktop\fortranjs\fortranjs\datos.json")
+        print *, "Escribe la ruta del archivo .js"
+        read(*, '(A)') nombreArchivoJs
         call json%initialize()    ! Se inicializa el módulo JSON
-        call json%load(filename='C:\Users\Javier Avila\Desktop\fortranjs\fortranjs\datos.json')  ! Se carga el archivo JSON llamado 'data.json'
+        call json%load(filename=nombreArchivoJs)  ! Se carga el archivo JSON llamado 'data.json'
               ! Se imprime el contenido del archivo JSON (opcional
         
         call json%info('',n_children=size)
