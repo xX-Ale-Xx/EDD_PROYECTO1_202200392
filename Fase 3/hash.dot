@@ -1,0 +1,123 @@
+digraph HashTable {
+  node [shape=plaintext];
+  hash_table [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" BGCOLOR="#ffffff" COLOR="#000000">
+      <TR>
+        <TD></TD>
+        <TD BGCOLOR="#cccccc" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000"><B>DPI-Técnicos</B></FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">0</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">1</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">3698521</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">2</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">3</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">4</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">5</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">6</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">7</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">1472583</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">8</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">9</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">7412589</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">10</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">11</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">3691475</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">12</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">13</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">14</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">15</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">16</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">17</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">18</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">6541238</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">19</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">9876543</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">20</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">1597532</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">21</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">8523697</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">22</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">23</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">24</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">25</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">-1</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">26</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">4567890</FONT></TD>
+      </TR>
+      <TR>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">27</FONT></TD>
+        <TD BGCOLOR="#eeeeee" BORDER="1" CELLPADDING="4"><FONT FACE="Helvetica" COLOR="#000000">2527419</FONT></TD>
+      </TR>
+    </TABLE>
+  >];
+}

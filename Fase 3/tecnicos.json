@@ -1,0 +1,82 @@
+[
+  {
+      "dpi": "9876543",
+      "nombre": "Luis Alberto",
+      "apellido": "Gómez Ramírez",
+      "genero": "Masculino",
+      "direccion": "15 avenida 12-30 zona 2",
+      "telefono": "65412378"
+  },
+  {
+      "dpi": "4567890",
+      "nombre": "Ana Gabriela",
+      "apellido": "Martínez López",
+      "genero": "Femenino",
+      "direccion": "3 calle 5-10 Mixco",
+      "telefono": "98763214"
+  },
+  {
+      "dpi": "8523697",
+      "nombre": "Pedro José",
+      "apellido": "Hernández García",
+      "genero": "Masculino",
+      "direccion": "20 avenida 15-25 zona 4",
+      "telefono": "74125896"
+  },
+  {
+      "dpi": "3698521",
+      "nombre": "Marta Lucia",
+      "apellido": "Sánchez Torres",
+      "genero": "Femenino",
+      "direccion": "2 calle 6-18 Villa Canales",
+      "telefono": "36985214"
+  },
+  {
+      "dpi": "7412589",
+      "nombre": "Roberto Carlos",
+      "apellido": "Gómez Pérez",
+      "genero": "Masculino",
+      "direccion": "17 avenida 9-15 zona 3",
+      "telefono": "95175382"
+  },
+  {
+      "dpi": "1597532",
+      "nombre": "Sofia Alejandra",
+      "apellido": "Ramírez Sosa",
+      "genero": "Femenino",
+      "direccion": "4 calle 20-30 zona 10",
+      "telefono": "75395182"
+  },
+  {
+      "dpi": "6541238",
+      "nombre": "Jorge Mario",
+      "apellido": "López Castro",
+      "genero": "Masculino",
+      "direccion": "12 avenida 3-15 zona 6",
+      "telefono": "36985274"
+  },
+  {
+      "dpi": "1472583",
+      "nombre": "Andrea Gabriela",
+      "apellido": "Torres Sánchez",
+      "genero": "Femenino",
+      "direccion": "8 calle 25-40 zona 9",
+      "telefono": "85296374"
+  },
+  {
+      "dpi": "3691475",
+      "nombre": "Diego Alejandro",
+      "apellido": "García Méndez",
+      "genero": "Masculino",
+      "direccion": "14 avenida 6-25 zona 12",
+      "telefono": "14725836"
+  },
+  {
+      "dpi": "2527419",
+      "nombre": "Elena Patricia",
+      "apellido": "Martínez Sosa",
+      "genero": "Femenino",
+      "direccion": "6 calle 30-12 zona 8",
+      "telefono": "96385274"
+  }
+]
