@@ -26,6 +26,8 @@ module Avl_Tree
         procedure :: searchNode
         procedure :: searchNode_hash
         procedure :: searchNode_listar
+        procedure :: searchBranch
+        procedure :: searchNode_tecnico_especifico
     end type Tree_t
 
     contains
@@ -43,6 +45,60 @@ module Avl_Tree
         nodePtr%Left => null()
         nodePtr%Right => null()
     end function new_branch
+
+    
+    recursive function recursive_insert(root, id,dir,dept,contra, increase) result(result_node)
+        type(Node_t), pointer :: root, result_node, n1
+        logical :: increase
+        character(:), allocatable,intent(in) ::dept,dir,contra
+        integer, intent(in) :: id
+
+        if (.not. associated(root)) then
+            allocate(result_node)
+            root => new_branch(id,dir,dept,contra)
+            increase = .true.
+        else if (id < root%id) then
+            root%Left => recursive_insert(root%Left, id,dir,dept,contra, increase)
+            if (increase) then
+            select case (root%Factor)
+                case (RIGHT_HEAVY)
+                    root%Factor = 0
+                    increase = .false.
+                case (BALANCED)
+                    root%Factor = -1
+                case (LEFT_HEAVY)
+                    n1 => root%Left
+                    if (n1%Factor == -1) then
+                        root => rotationII(root, n1)
+                    else
+                        root => rotationID(root, n1)
+                    end if
+                    increase = .false.
+            end select
+            end if
+        else if (id > root%id) then
+            root%Right => recursive_insert(root%Right,id,dir,dept,contra, increase)
+            if (increase) then
+                select case (root%Factor)
+                case (RIGHT_HEAVY)
+                    n1 => root%Right
+                    if (n1%Factor == 1) then
+                        root => rotationDD(root, n1)
+                    else
+                        root => rotationDI(root, n1)
+                    end if
+                    increase = .false.
+                case (BALANCED)
+                    root%Factor = 1
+                case (LEFT_HEAVY)
+                    root%Factor = 0
+                    increase = .false.
+                end select
+            end if
+        end if
+
+        result_node => root
+    end function recursive_insert
 
     subroutine new_avl(self)
         class(Tree_t), intent(inout) :: self
@@ -131,58 +187,6 @@ module Avl_Tree
         tree%root => recursive_insert(tree%root, id,dir,dept,contra, increase)
     end subroutine insert_node
 
-    recursive function recursive_insert(root, id,dir,dept,contra, increase) result(result_node)
-        type(Node_t), pointer :: root, result_node, n1
-        logical :: increase
-        character(:), allocatable,intent(in) ::dept,dir,contra
-        integer, intent(in) :: id
-
-        if (.not. associated(root)) then
-            allocate(result_node)
-            root => new_branch(id,dir,dept,contra)
-            increase = .true.
-        else if (id < root%id) then
-            root%Left => recursive_insert(root%Left, id,dir,dept,contra, increase)
-            if (increase) then
-            select case (root%Factor)
-                case (RIGHT_HEAVY)
-                    root%Factor = 0
-                    increase = .false.
-                case (BALANCED)
-                    root%Factor = -1
-                case (LEFT_HEAVY)
-                    n1 => root%Left
-                    if (n1%Factor == -1) then
-                        root => rotationII(root, n1)
-                    else
-                        root => rotationID(root, n1)
-                    end if
-                    increase = .false.
-            end select
-            end if
-        else if (id > root%id) then
-            root%Right => recursive_insert(root%Right,id,dir,dept,contra, increase)
-            if (increase) then
-                select case (root%Factor)
-                case (RIGHT_HEAVY)
-                    n1 => root%Right
-                    if (n1%Factor == 1) then
-                        root => rotationDD(root, n1)
-                    else
-                        root => rotationDI(root, n1)
-                    end if
-                    increase = .false.
-                case (BALANCED)
-                    root%Factor = 1
-                case (LEFT_HEAVY)
-                    root%Factor = 0
-                    increase = .false.
-                end select
-            end if
-        end if
-
-        result_node => root
-    end function recursive_insert
 
     recursive subroutine recursive_print(root, nombre, io)
         type(Node_t), pointer, intent(in) :: root
@@ -209,6 +213,9 @@ module Avl_Tree
             call recursive_print(root%Right, Right, io)
         end if
     end subroutine recursive_print
+
+
+    
 
     subroutine graph_avl_tree(self)
         class(Tree_t), intent(in) :: self
@@ -240,7 +247,7 @@ module Avl_Tree
     subroutine searchNode(tree, id, contra, found)
         class(Tree_t), intent(inout) :: tree
         integer, intent(in) :: id
-        character(:), allocatable,intent(in) ::contra
+        character(len = 32),intent(in) ::contra
         type(Node_t), pointer :: foundNode
         logical, intent(inout) :: found
     
@@ -261,15 +268,16 @@ module Avl_Tree
     
     recursive function searchNodeRecursive(currentNode, id, contra) result(foundNode)
         type(Node_t), pointer :: currentNode, foundNode
-        character(:), allocatable,intent(in) ::contra
+        character(len = 32),intent(in) ::contra
         integer, intent(in) :: id
     
         if (.not. associated(currentNode)) then
             foundNode => null()
             return
         end if
-    
-        if (currentNode%id == id) then
+
+        if (currentNode%id == id .and. trim(adjustl(currentNode%password)) == trim(adjustl(contra))) then
+            print *, "Entro"
             foundNode => currentNode
             return
         elseif (id < currentNode%id) then
@@ -314,8 +322,6 @@ module Avl_Tree
         if (currentNode%id == id) then
             foundNode => currentNode
             foundNode%tablahash = tecnico
-            print *, "Se agrego el tecnico a la tabla hash"
-            call foundNode%tablahash%print()
             return
         elseif (id < currentNode%id) then
             foundNode => searchNodeRecursive_hash(currentNode%Left, id, tecnico)
@@ -346,6 +352,68 @@ module Avl_Tree
             print *, "El valor no se encontro", id
         end if
     end subroutine searchNode_listar
+
+    function searchBranch(tree, id) result(foundNode)
+        class(Tree_t), intent(inout) :: tree
+        integer, intent(in) :: id
+        type(Node_t), pointer :: foundNode
+    
+        if (.not. associated(tree%root)) then
+            print *, "El árbol está vacío."
+            return
+        end if
+    
+        foundNode => searchRecursiveBranch(tree%root, id)
+    
+        if (associated(foundNode)) then
+            print *, "El id ", foundNode%id           
+            
+        else
+            print *, "El valor no se encontro", id
+        end if
+    end function searchBranch
+    
+    recursive function searchRecursiveBranch(currentNode, id) result(foundNode)
+        type(Node_t), pointer :: currentNode, foundNode
+        integer, intent(in) :: id
+    
+        if (.not. associated(currentNode)) then
+            foundNode => null()
+            return
+        end if
+    
+        if (currentNode%id == id) then
+            foundNode => currentNode
+            return
+        elseif (id < currentNode%id) then
+            foundNode => searchRecursiveBranch(currentNode%Left, id)
+        else
+            foundNode => searchRecursiveBranch(currentNode%Right, id)
+        end if
+    end function searchRecursiveBranch
+
+    subroutine searchNode_tecnico_especifico(tree, id, dpi)
+        class(Tree_t), intent(inout) :: tree
+        integer, intent(in) :: id
+        integer(8), intent(in) :: dpi
+        
+        type(Node_t), pointer :: foundNode
+    
+        if (.not. associated(tree%root)) then
+            print *, "El árbol está vacío."
+            return
+        end if
+    
+        foundNode => searchNodeRecursive_listar(tree%root, id)
+    
+        if (associated(foundNode)) then
+            
+            call foundNode%tablahash%get_data(dpi)
+            
+        else
+            print *, "El valor no se encontro", id
+        end if
+    end subroutine searchNode_tecnico_especifico
     
     recursive function searchNodeRecursive_listar(currentNode, id) result(foundNode)
         type(Node_t), pointer :: currentNode, foundNode

@@ -18,6 +18,7 @@ module hash_table
         procedure :: search
         procedure, private :: solve_collision
         procedure :: grafico
+        procedure :: get_data
     end type HashTable
 contains
     subroutine insert(self, key,nombre,apellido,direccion,telefono)
@@ -39,7 +40,7 @@ contains
 
         ! If the position is already occupied, solve the collision
         if(self%array(pos)%key /= -1 .and. self%array(pos)%key /= key) then
-            call self%solve_collision(pos)
+            call self%solve_collision(key, pos)
         end if
 
         ! Store the key in the table
@@ -81,15 +82,27 @@ contains
         end do
     end function rehashing
 
-    subroutine solve_collision(self, pos)
+    subroutine solve_collision(self, key, pos)
         class(HashTable), intent(inout) :: self
+        integer(8), intent(in) :: key
         integer(8), intent(inout) :: pos
-        ! Hash function h'(k)
-        do while(self%array(pos)%key /= -1)
-            pos = pos + 1
-            pos = mod(pos, table_size)
+        integer(8) :: i, step, new_pos
+    
+        i = 1  ! Contador de colisiones
+        ! Continúa buscando una nueva posición mientras la posición actual esté ocupada y no sea el DPI correcto
+        do while (self%array(pos)%key /= -1 .and. self%array(pos)%key /= key)
+            ! Calcula el paso usando la fórmula de doble dispersión
+            step = mod(key, 7) + 1
+            new_pos = mod(pos + step * i, table_size)
+            ! Si encuentra una posición libre, sale del bucle
+            if (self%array(new_pos)%key == -1) then
+                pos = new_pos
+                exit
+            endif
+            i = i + 1  ! Incrementa el contador de colisiones
         end do
     end subroutine solve_collision
+    
 
     function get_position(key) result(pos)
         integer(8), intent(in) :: key
@@ -99,6 +112,45 @@ contains
         ! Multiplicative hashing
         pos = mod(key,table_size)
     end function get_position
+
+    subroutine get_data(self, key)
+        class(HashTable), intent(in) :: self
+        integer(8), intent(in) :: key
+        integer :: pos, initial_pos, i, step
+        logical :: found
+    
+        found = .false.
+        i = 0  ! Contador para evitar un bucle infinito en caso de que algo salga mal
+    
+        pos = get_position(key)
+        initial_pos = pos
+    
+        ! Intenta encontrar el DPI
+        do while (.not. found .and. i < table_size)
+            if (self%array(pos)%key == key) then
+                ! El DPI fue encontrado, imprime la información
+                print *, "DPI encontrado en la posicion: ", pos
+                print *, "Nombre: ", trim(self%array(pos)%nombre)
+                print *, "Apellido: ", trim(self%array(pos)%apellido)
+                print *, "Direccion: ", trim(self%array(pos)%direccion)
+                print *, "Telefono: ", self%array(pos)%telefono
+                found = .true.
+            elseif (self%array(pos)%key == -1) then
+                ! Llegó a un elemento sin asignar, termina la búsqueda
+                exit
+            else
+                ! DPI no encontrado en esta posición, prueba con la siguiente posición
+                step = mod(key, 7) + 1
+                pos = mod(initial_pos + step * i, table_size)
+            endif
+            i = i + 1
+        end do
+    
+        if (.not. found) then
+            print *, "DPI no encontrado en la tabla."
+        end if
+    end subroutine get_data
+    
 
     subroutine search(self, key)
         class(HashTable), intent(inout) :: self
@@ -119,7 +171,12 @@ contains
         print '(a, i0)', "Size on table: ", table_size
         print '(a, i0)', "Elements on table: ", self%elements
         do i = 0, size(self%array) - 1
-            print '(i0, a, i0, a, a)',  i, " dpi: ", self%array(i)%key, " Nombre: ", self%array(i)%nombre
+            if(self%array(i)%key /= -1) then
+                print '(i0, a, i0, a, a, a, a, a, a, a, i0)',  i, " DPI: ", self%array(i)%key, &
+                " Nombre: ", self%array(i)%nombre, &
+                " Apellido: ", self%array(i)%apellido, " Direccion: ", self%array(i)%direccion, &
+                " Telefono: ", self%array(i)%telefono
+            end if
         end do
     end subroutine print
 

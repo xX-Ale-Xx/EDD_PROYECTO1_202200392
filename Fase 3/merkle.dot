@@ -1,0 +1,24 @@
+digraph Merkle_tree {
+node [shape=record, fontname=Arial, fontsize=12];
+13 [label="8EC9ABDBA880BC454FBF92D06EC650F9F439442385842D5227F77DFD582DCD2E"];
+13 -> 14;
+13 -> 15;
+14 [label="8C83EDE81C4EF7BA8F129AA4F83833F0FBEA196718605240EA6FAA1A722312AB"];
+11 [label=<<TABLE><TR>
+<TD>id_origen:          1</TD>
+<TD>direccion_origen: Guatemala</TD></TR>
+<TR><TD>id_destino:          2</TD>
+<TD>direccion_destino: Huehuetenango</TD></TR>
+<TR><TD>costo:        800</TD></TR>
+</TABLE>>];
+14 -> 11;
+15 [label="DA4B58C7A1C550043E3ADF2A287BADE1708E9F44B65726763095C418C1B08050"];
+12 [label=<<TABLE><TR>
+<TD>id_origen:          2</TD>
+<TD>direccion_origen: Huehuetenango</TD></TR>
+<TR><TD>id_destino:          2</TD>
+<TD>direccion_destino: Huehuetenango</TD></TR>
+<TR><TD>costo:       1200</TD></TR>
+</TABLE>>];
+15 -> 12;
+}

@@ -1,7 +1,9 @@
 PROGRAM menu_program
     use json_module
     use hash_table
+    use block_chain
     use Avl_Tree
+    use PasswordEncryptor
     use routes
     IMPLICIT NONE
     INTEGER :: opcion
@@ -19,13 +21,23 @@ PROGRAM menu_program
     type(json_core) :: jsonc
     logical :: found
     logical :: encontrado
-    type(Tree_t) :: avl_sucursales
-    type(graph) :: graphRutas
-    type(graph) :: graphImpresoras
+    type(Tree_t) :: sucursales_tree
+    type(grafo) :: graphRutas
+    type(grafo) :: graphImpresoras
     integer :: distancia, s1, s2, imp_mantenimiento
     type(analyzer) :: analizador, analizadorImpresoras
+    character(:), allocatable :: hashedPassword
+    character(len = 32) :: password_sucursal
+    logical :: session_active
+    type(block) :: blockChainMerckle
+    type(chainer) :: chain
 
-
+    DO
+        call login(session_active)
+        if (.not. session_active) then
+            print *, "Intento fallido"
+            exit
+        endif    
 DO
    call menu_programa()
     READ(*,*) opcion
@@ -39,9 +51,11 @@ DO
             print *, "Ingrese el id de la sucursal: "
             read (*,*) id_sucursal
             print *, "Ingrese la contraseña de la sucursal: "
-            read (*,*) password
+            read (*,'(A)') password_sucursal
+            print *, password_sucursal
             encontrado = .false.
-            call avl_sucursales%searchNode(id_sucursal, password, encontrado)
+            hashedPassword = hashPassword(trim(password_sucursal))
+            call sucursales_tree%searchNode(id_sucursal, hashedPassword, encontrado)
               
             if (encontrado) then
                 call menu_sucursal()
@@ -58,16 +72,18 @@ DO
             WRITE(*,*) "Opción inválida. Intente nuevamente."
     END SELECT
 END DO
+end do
 
 CONTAINS
 
 subroutine menu_sucursal()
+    integer(8) :: dpi_buscar
 do
     print *, "Bienvenido a la sucursal ", id_sucursal
-    print *, "Ingrese una opción: "
+    print *, "Ingrese una opcion: "
     print *, "1. Carga de tecnicos"
-    print *, "2. Generar recorrido más óptimo"
-    print *, "3. Información Técnico en Específico"
+    print *, "2. Generar recorrido mas optimo"
+    print *, "3. Información Tecnico en Especifico"
     print *, "4. Listar Tecnicos"
     print *, "5. Generar Reportes"
     print *, "6. Regresar"
@@ -77,8 +93,12 @@ do
         call cargarTecnicos()
     case (2)
         call generarMasOptimo()
+    case (3)
+        print *, "Ingrese el DPI del tecnico: "
+        read (*,*) dpi_buscar
+        call sucursales_tree%searchNode_tecnico_especifico(id_sucursal, dpi_buscar)
     case (4)
-        call avl_sucursales%searchNode_listar(id_sucursal)
+        call sucursales_tree%searchNode_listar(id_sucursal)
     case (6)
         exit
     end SELECT
@@ -86,23 +106,103 @@ end do
         
 end subroutine menu_sucursal
 
+
+subroutine login(success)
+    logical, intent(out) :: success
+    character(len=20) :: input_user, input_pass
+    character(len=20), parameter :: correct_user = 'EDD'
+    character(len=20), parameter :: correct_pass = '3'
+
+    success = .false.
+
+    print *, "Por favor, ingrese su usuario:"
+    read(*, '(A)') input_user
+    print *, "Por favor, ingrese su contraseña:"
+    read(*, '(A)') input_pass
+
+    if (trim(input_user) == correct_user .and. trim(input_pass) == correct_pass) then
+        print *, "Inicio de sesión correcto."
+        success = .true.
+    else
+        print *, "Usuario o contraseña incorrectos."
+    endif
+end subroutine login
+
+
+
 subroutine generarMasOptimo()
     type(result_list) :: lista_resultado, lista_imp 
-    integer :: total
+    integer :: total, total_imp, total2, total_imp2, ganancia1, ganancia2
+    integer(8) :: dpi_te
     print *, "Ingrese la sucursal de destino: "
     read (*,*) s2
     lista_resultado = analizador%get_shortest_path(id_sucursal, s2)
+    print *,"----------------------------"
+    print *, "La ruta mas corta es:"
+    print *,""
     call lista_resultado%print()
     total = lista_resultado%total_weight * 80
-    print *, "El costo total del recorrido es: Q", total
+    total_imp = lista_resultado%total_printers * 100
+    ganancia1 = total_imp - total
+    print *, "El total de km recorridos fue de: ", lista_resultado%total_weight
     print *, "Las impresoras atendidas fueron : ",lista_resultado%total_printers
     lista_imp = analizadorImpresoras%get_longest_path(id_sucursal, s2)
+    print *,"----------------------------"
+    print *, "La ruta mas larga es:"
+    print *,""
     call lista_imp%print()
-    total = lista_imp%total_weight * 100
-    print *, "El costo total del recorrido es: Q", total   
+    total2 = lista_imp%total_weight * 100
+    total_imp2 = lista_imp%total_printers * 80
+    ganancia2 = total2 - total_imp2
+    print *, "El total de impresoras es de: ", lista_imp%total_weight    
     print *, "Los km totales son: ", lista_imp%total_printers
-    call graphRutas%reset_graph()
-    call graphImpresoras%reset_graph()
+    print *,"----------------------------"
+    print *, "LA RUTA RECOMENDADA ES: "
+    if(ganancia1 > ganancia2) then
+        print *, "La ruta mas corta es la mas optima!"
+        print *, ""
+        print *, "Resultados de la ruta mas corta"
+        print *, "El costo total de la distancia recorrida es : ", total
+        print *, "La ganancia total de las impresoras atendidas es : ", total_imp
+        print *,""
+        print *, "Resultados de la ruta mas larga"
+        print *, "El costo total de la distancia recorrida es : ", total_imp2
+        print *, "La ganancia total de las impresoras atendidas es : ", total2
+        call blockChainMerckle%generarBloque(lista_resultado, sucursales_tree, .true.)
+        call chain%aniadir_bloque(blockChainMerckle)
+        call chain%generarJson(.true.)
+    elseif (ganancia1 < ganancia2) then
+        print *, "La ruta mas larga es la mas optima!"
+        print *, ""
+        print *, "Resultados de la ruta mas larga"
+        print *, "El costo total de la distancia recorrida es : ", total_imp2
+        print *, "La ganancia total de las impresoras atendidas es : ", total2
+
+        print *, ""
+        print *, "Resultados de la ruta mas corta"
+        print *, "El costo total de la distancia recorrida es : ", total
+        print *, "La ganancia total de las impresoras atendidas es : ", total_imp
+        call blockChainMerckle%generarBloque(lista_imp, sucursales_tree, .false.)
+        call chain%aniadir_bloque(blockChainMerckle)
+        call chain%generarJson(.false.)
+    else if(ganancia1 == ganancia2) then
+        print *, "Ambas rutas son igual de optimas!"
+        print *, "El costo total de la distancia recorrida es : ", total
+        print *, "la ganancia total de las impresoras atendidas es : ", total_imp
+        call blockChainMerckle%generarBloque(lista_resultado, sucursales_tree, .true.)
+        call chain%aniadir_bloque(blockChainMerckle)
+        call chain%generarJson(.true.)
+    end if
+    print *,"----------------------------"
+    
+    print *, "Ingrese el dpi del tecnico"
+    read (*,*) dpi_te
+    print *, "Datos del tecnico: "
+    call sucursales_tree%searchNode_tecnico_especifico(id_sucursal, dpi_te)
+    print *, ""
+
+    call graphRutas%reset_grafo()
+    call graphImpresoras%reset_grafo()
     call recargarRutas()
 end subroutine generarMasOptimo
 
@@ -125,7 +225,6 @@ subroutine cargarTecnicos()
             call jsonc%get(attributePointer, dpi_value)
             print *, 'DPI: ', dpi_value
             read(dpi_value,'(I13)') dpi
-            
         end if
 
         call jsonc%get_child(personPointer, 'nombre', attributePointer, found=found)
@@ -160,10 +259,7 @@ subroutine cargarTecnicos()
         end if
         call table%insert(dpi, name, lastname, address, phone)
     end do
-      
-        call avl_sucursales%searchNode_hash(id_sucursal, table)
-       
-
+        call sucursales_tree%searchNode_hash(id_sucursal, table)
         call json%destroy()
 end subroutine cargarTecnicos
 
@@ -229,8 +325,8 @@ subroutine cargarRutas()
         call graphImpresoras%insert_data_2(s1,s2,imp_mantenimiento, distancia)
     end do
 
-    call analizador%set_graph(graphRutas)
-    call analizadorImpresoras%set_graph(graphImpresoras)
+    call analizador%set_grafo(graphRutas)
+    call analizadorImpresoras%set_grafo(graphImpresoras)
     call json%destroy()
 end subroutine cargarRutas
 
@@ -273,8 +369,8 @@ subroutine recargarRutas()
         call graphImpresoras%insert_data_2(s1,s2,imp_mantenimiento, distancia)
     end do
     
-    call analizador%set_graph(graphRutas)
-    call analizadorImpresoras%set_graph(graphImpresoras)
+    call analizador%set_grafo(graphRutas)
+    call analizadorImpresoras%set_grafo(graphImpresoras)
     call json%destroy()
 end subroutine recargarRutas
 
@@ -315,16 +411,16 @@ subroutine cargarSucursales()
             call jsonc%get_child(deptPointer, 'password', partPointer, found=found)
             if (found) then
                 call jsonc%get(partPointer, password)
-                print *, 'Contraseña: ', password
+                hashedPassword = hashPassword(password)
             end if
-            call avl_sucursales%insert_node(id_sucursal, departamento, direccion, password)
+            call sucursales_tree%insert_node(id_sucursal, departamento, direccion, hashedPassword)
         end do
-        call avl_sucursales%graph_avl_tree()
+        call sucursales_tree%graph_avl_tree()
         call json%destroy()
 end subroutine cargarSucursales
 
 subroutine menu_programa()
-        print *, "------------Menú de opciones------------"
+        print *, "------------Menu de opciones------------"
         print *, "1. Carga de archivos"
         print *, "2. Sucursales"
         print *, "3. Reportes"
